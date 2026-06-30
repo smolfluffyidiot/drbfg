@@ -1576,7 +1576,7 @@
 
         // 写入陪伴日记（只有真正陪伴过、且时长 ≥ 30 秒才记录，避免误触）
         try {
-            if (_diaryMode && _diaryDurSec >= 30 && typeof window.addCompanionDiaryEntry === 'function') {
+            if (_diaryMode && _diaryDurSec >= 5 && typeof window.addCompanionDiaryEntry === 'function') {
                 const partnerNote = (typeof window.pickCompanionDiaryCards === 'function')
                     ? window.pickCompanionDiaryCards()
                     : '';
