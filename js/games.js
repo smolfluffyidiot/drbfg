@@ -989,10 +989,6 @@ function initDecisionModule() {
     const sendResultBtn = document.getElementById('send-wheel-result');
 
     if (openCoinBtn && !openCoinBtn.dataset.initialized) {
-        openCoinBtn.addEventListener('click', () => {
-            hideModal(document.getElementById('decision-menu-modal'));
-            handleCoinToss();
-        });
         openCoinBtn.dataset.initialized = 'true';
     }
 
@@ -1176,53 +1172,153 @@ function doPick() {
     flash();
 }
 
-function handleCoinToss() {
-    const overlay = DOMElements.coinTossOverlay;
-    if (!overlay) return;
-    overlay.classList.remove('finished');
-    overlay.classList.add('visible');
-    const resultText = DOMElements.coinResultText;
-    if (resultText) resultText.textContent = '';
-    const sendBtn = DOMElements.sendCoinResult;
-    if (sendBtn) sendBtn.style.display = 'none';
-    const retryBtn = document.getElementById('retry-coin-toss');
-    if (retryBtn) retryBtn.style.display = 'none';
-    if (DOMElements.animatedCoin) DOMElements.animatedCoin.style.transform = '';
-    startCoinFlipAnimation();
+// ===============================
+// 🧠 Decision System（替换 Coin Toss）
+// ===============================
+
+function handleDecisionSystem() {
+
+    const questionInput = document.getElementById('decision-question');
+    const optionInputs = document.querySelectorAll('#decision-options-container .decision-option-input');
+
+    if (!questionInput) return;
+
+    const question = questionInput.value.trim();
+
+    const options = Array.from(optionInputs)
+        .map(i => i.value.trim())
+        .filter(Boolean);
+
+    if (!question || options.length < 2) {
+        showNotification('请至少输入问题 + 2 个选项', 'warning');
+        return;
+    }
+
+    // 清空输入
+    questionInput.value = '';
+    optionInputs.forEach(i => i.value = '');
+
+    // =========================
+    // 1️⃣ 用户发送问题消息
+    // =========================
+    const msgText =
+        `${question}\n\n` +
+        options.map((o, i) => `${i + 1}. ${o}`).join('\n');
+
+    sendMessage(msgText, 'normal');
+
+    // =========================
+    // 2️⃣ 触发原有聊天系统延迟机制
+    // （typing + read + simulateReply）
+    // =========================
+    const triggered = _triggerDelayedReply(true);
+
+    if (!triggered) return;
+
+    // =========================
+    // 3️⃣ 注入 Decision 回复逻辑（只覆盖一次）
+    // =========================
+    const originalSimulateReply = window.simulateReply;
+
+    window.simulateReply = function () {
+
+                const answer = options[Math.floor(Math.random() * options.length)];
+            
+                // =========================
+                // ❌ 30% 概率拒绝回答
+                // =========================
+                const refuseChance = 0.3;
+            
+                if (Math.random() < refuseChance) {
+            
+                    const refuseReplies = [
+                        "这个我有点选不出来…",
+                        "让我想想",
+                        "都差不多欸，有点纠结",
+                        "你帮我选吧",
+                        "这个问题有点难选",
+                        "我暂时选不出来"
+                    ];
+            
+                    const reply =
+                        refuseReplies[Math.floor(Math.random() * refuseReplies.length)];
+            
+                    addMessage({
+                        id: Date.now(),
+                        sender: settings.partnerName || '对方',
+                        text: reply,
+                        timestamp: new Date(),
+                        status: 'received',
+                        type: 'normal'
+                    });
+            
+                    playSound('message');
+            
+                    window.simulateReply = originalSimulateReply;
+                    return;
+                }
+            
+                // =========================
+                // ✅ 正常随机选择
+                // =========================
+                const templates = [
+                    `我选 ${answer}`,
+                    `${answer} 吧`,
+                    `我觉得 ${answer} 比较好`,
+                    `那就 ${answer}！`,
+                    `答案是：${answer}`,
+                    `${answer}`,
+                    `嗯…选 ${answer}`
+                ];
+            
+                const reply =
+                    templates[Math.floor(Math.random() * templates.length)];
+            
+                addMessage({
+                    id: Date.now(),
+                    sender: settings.partnerName || '对方',
+                    text: reply,
+                    timestamp: new Date(),
+                    status: 'received',
+                    type: 'normal'
+                });
+            
+                playSound('message');
+            
+                window.simulateReply = originalSimulateReply;
+            };
+
+    showNotification('已发送抉择问题', 'info', 1200);
 }
-window.handleCoinToss = handleCoinToss;
 
-function startCoinFlipAnimation() {
-    const coin = DOMElements.animatedCoin;
-    const resultText = DOMElements.coinResultText;
-    const overlay = DOMElements.coinTossOverlay;
-    if (!coin || !overlay) return;
+// ===============================
+// 🎯 替换 coin entry
+// ===============================
+window.handleCoinToss = handleDecisionSystem;
 
-    overlay.classList.remove('finished');
-    if (resultText) resultText.textContent = '';
-    const sendBtn = DOMElements.sendCoinResult;
-    if (sendBtn) sendBtn.style.display = 'none';
-    const retryBtn = document.getElementById('retry-coin-toss');
-    if (retryBtn) retryBtn.style.display = 'none';
+document.getElementById('add-decision-option-btn')
+.addEventListener('click', () => {
 
-    const isHeads = Math.random() < 0.5;
-    const result = isHeads ? '正面 ☀️' : '反面 🌙';
-    lastCoinResult = result;
+    const container = document.getElementById('decision-options-container');
 
-    coin.classList.remove('flipping-heads', 'flipping-tails', 'coin-show-front', 'coin-show-back');
-    void coin.offsetWidth;
-    coin.classList.add(isHeads ? 'flipping-heads' : 'flipping-tails');
-    setTimeout(() => {
-        coin.classList.remove('flipping-heads', 'flipping-tails');
-        coin.style.transform = isHeads ? 'rotateY(0deg)' : 'rotateY(180deg)';
-        if (resultText) resultText.textContent = result;
-        overlay.classList.add('finished');
-        if (sendBtn) sendBtn.style.display = '';
-        if (retryBtn) retryBtn.style.display = '';
-        if (typeof playSound === 'function') playSound('favorite');
-    }, 3050);
-}
-window.startCoinFlipAnimation = startCoinFlipAnimation;
+    const index = container.querySelectorAll('.decision-option-row').length + 1;
+
+    const row = document.createElement('div');
+    row.className = 'decision-option-row';
+
+    row.innerHTML = `
+        <input class="decision-option-input" placeholder="选项 ${index}">
+        <button class="delete-option-btn">×</button>
+    `;
+
+    // 删除逻辑
+    row.querySelector('.delete-option-btn').addEventListener('click', () => {
+        row.remove();
+    });
+
+    container.appendChild(row);
+
+});
 
 function initComboMenu() {
     const comboBtn = document.getElementById('combo-btn');
