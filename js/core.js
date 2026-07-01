@@ -1717,28 +1717,69 @@ if (partnerPersonas && partnerPersonas.length > 0 && Math.random() < 0.3) {
                     Math.random() < 0.7 ? 1 :
                     Math.random() < 0.9 ? 2 : 3;
                 
-                const usedReplies = [];
-                const availableReplies = [...replyPool];
+                let replyText = '';
                 
-                for (let j = 0; j < combineCount && availableReplies.length > 0; j++) {
+                // =======================
+                // Decision Reply 优先
+                // =======================
+                if (window.pendingDecisionReply) {
                 
-                    const index = Math.floor(Math.random() * availableReplies.length);
-                    const picked = String(availableReplies[index] || '').trim();
+                    replyText = window.pendingDecisionReply;
+                    window.pendingDecisionReply = null;
                 
-                    if (picked) {
-                        usedReplies.push(picked);
+                } else {
+                
+                    const usedReplies = [];
+                    const availableReplies = [...replyPool];
+                
+                    for (let j = 0; j < combineCount && availableReplies.length > 0; j++) {
+                
+                        const index = Math.floor(Math.random() * availableReplies.length);
+                        const picked = String(availableReplies[index] || '').trim();
+                
+                        if (picked) {
+                            usedReplies.push(picked);
+                        }
+                
+                        // 同一条消息不重复
+                        availableReplies.splice(index, 1);
                     }
                 
-                    // Remove so the same reply won't appear twice in one message
-                    availableReplies.splice(index, 1);
+                    replyText = usedReplies.join(' ');
                 }
                 
-                let replyText = usedReplies.join(' ');
-                
                 if (!replyText && i === replyCount - 1) {
-                        (function(){try{if(window._typingIndicatorAutoHideTimer){clearTimeout(window._typingIndicatorAutoHideTimer);window._typingIndicatorAutoHideTimer=null;}}catch(e){}var _tiW=document.getElementById('typing-indicator-wrapper');if(_tiW){var _tiInner=_tiW.querySelector('.typing-indicator');if(_tiInner){_tiInner.classList.add('hiding');setTimeout(function(){_tiW.style.display='none';if(_tiInner)_tiInner.classList.remove('hiding');},240);}else{_tiW.style.display='none';}}})();
-                        return;
-                    }
+                    (function () {
+                        try {
+                            if (window._typingIndicatorAutoHideTimer) {
+                                clearTimeout(window._typingIndicatorAutoHideTimer);
+                                window._typingIndicatorAutoHideTimer = null;
+                            }
+                        } catch (e) {}
+                
+                        var _tiW = document.getElementById('typing-indicator-wrapper');
+                
+                        if (_tiW) {
+                            var _tiInner = _tiW.querySelector('.typing-indicator');
+                
+                            if (_tiInner) {
+                                _tiInner.classList.add('hiding');
+                
+                                setTimeout(function () {
+                                    _tiW.style.display = 'none';
+                
+                                    if (_tiInner)
+                                        _tiInner.classList.remove('hiding');
+                                }, 240);
+                
+                            } else {
+                                _tiW.style.display = 'none';
+                            }
+                        }
+                    })();
+                
+                    return;
+                }
 
                     let disabledStickerItems = new Set();
                     try {
