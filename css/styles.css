@@ -5332,7 +5332,24 @@
             justify-content: flex-end;
         }
         
-        
+        .decision-option-row {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                margin-bottom: 6px;
+            }
+            
+            .decision-option-row input {
+                flex: 1;
+            }
+            
+            .delete-option-btn {
+                background: transparent;
+                border: none;
+                color: #ff5c5c;
+                font-size: 18px;
+                cursor: pointer;
+            }
 
         #anniversary-modal .modal-content {
     padding: 0;
