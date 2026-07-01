@@ -5332,23 +5332,109 @@
             justify-content: flex-end;
         }
         
-        .decision-option-row {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                margin-bottom: 6px;
+            /* Container */
+            #decision-options-container{
+                display:flex;
+                flex-direction:column;
+                gap:12px;
+                margin:12px 0 18px;
             }
             
-            .decision-option-row input {
-                flex: 1;
+            /* Each option */
+            .decision-option-row{
+                display:flex;
+                align-items:center;
+                gap:10px;
             }
             
-            .delete-option-btn {
-                background: transparent;
-                border: none;
-                color: #ff5c5c;
-                font-size: 18px;
-                cursor: pointer;
+            /* Input */
+            .decision-option-input{
+                flex:1;
+                padding:12px 16px;
+                border:1px solid var(--border-color);
+                border-radius:16px;
+                background:var(--primary-bg);
+                color:var(--text-primary);
+                font-family:var(--font-family);
+                font-size:14px;
+                transition:var(--transition);
+            }
+            
+            .decision-option-input:focus{
+                outline:none;
+                border-color:var(--accent-color);
+                box-shadow:0 0 0 3px rgba(var(--accent-color-rgb),0.12);
+            }
+            
+            /* Delete button */
+            .delete-option-btn{
+                width:38px;
+                height:38px;
+            
+                border:none;
+                border-radius:50%;
+            
+                background:var(--message-received-bg);
+                color:var(--text-secondary);
+            
+                cursor:pointer;
+                font-size:20px;
+                line-height:1;
+            
+                transition:var(--transition);
+            
+                display:flex;
+                align-items:center;
+                justify-content:center;
+            }
+            
+            .delete-option-btn:hover{
+                background:rgba(255,71,87,.12);
+                color:#ff4757;
+                transform:scale(1.08);
+            }
+            
+            /* Bottom buttons */
+            #add-decision-option-btn,
+            #decision-send-btn{
+                padding:10px 18px;
+                border:none;
+                border-radius:999px;
+            
+                font-family:var(--font-family);
+                font-size:14px;
+            
+                cursor:pointer;
+                transition:var(--transition);
+            }
+            
+            /* Secondary button */
+            #add-decision-option-btn{
+                background:var(--message-received-bg);
+                color:var(--text-primary);
+            }
+            
+            #add-decision-option-btn:hover{
+                background:var(--border-color);
+            }
+            
+            /* Primary button */
+            #decision-send-btn{
+                background:var(--accent-color);
+                color:white;
+            }
+            
+            #decision-send-btn:hover{
+                transform:translateY(-1px);
+                filter:brightness(1.05);
+            }
+            
+            /* Button row */
+            .decision-buttons{
+                display:flex;
+                justify-content:flex-end;
+                gap:10px;
+                margin-top:12px;
             }
 
         #anniversary-modal .modal-content {
