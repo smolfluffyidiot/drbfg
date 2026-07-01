@@ -2213,6 +2213,26 @@
         </div>
     </div>
 
+    <div id="decision-modal">
+        <input id="decision-question" placeholder="输入问题">
+    
+        <div id="decision-options-container">
+            <div class="decision-option-row">
+                <input class="decision-option-input" placeholder="选项 1">
+                <button class="delete-option-btn">×</button>
+            </div>
+        
+            <div class="decision-option-row">
+                <input class="decision-option-input" placeholder="选项 2">
+                <button class="delete-option-btn">×</button>
+            </div>
+        </div>
+        
+        <button id="add-decision-option-btn">＋ 添加选项</button>
+        <button onclick="handleDecisionSystem()">发送</button>
+
+    </div>
+
     <div class="modal" id="disclaimer-modal">
         <div class="modal-content">
             <div class="modal-title">
