@@ -968,6 +968,7 @@ window._runMsgSearch = function() {
 
 let wheelOptions = ["是", "否", "再想一想", "听你的"];
 let wheelResultText = "";
+window.pendingDecisionReply = null;
 
 function initDecisionModule() {
     const entryBtn = document.getElementById('decision-function'); 
@@ -1218,50 +1219,18 @@ function handleDecisionSystem() {
     // =========================
     // 3️⃣ 注入 Decision 回复逻辑（只覆盖一次）
     // =========================
-    const originalSimulateReply = window.simulateReply;
 
-    window.simulateReply = function () {
+            const answer = options[Math.floor(Math.random() * options.length)];
 
-                const answer = options[Math.floor(Math.random() * options.length)];
-            
-                // =========================
-                // ❌ 30% 概率拒绝回答
-                // =========================
-                const refuseChance = 0.3;
-            
-                if (Math.random() < refuseChance) {
-            
-                    const refuseReplies = [
+            const refuseReplies = [
                         "这个我有点选不出来…",
                         "让我想想",
                         "都差不多欸，有点纠结",
                         "你帮我选吧",
                         "这个问题有点难选",
                         "我暂时选不出来"
-                    ];
-            
-                    const reply =
-                        refuseReplies[Math.floor(Math.random() * refuseReplies.length)];
-            
-                    addMessage({
-                        id: Date.now(),
-                        sender: settings.partnerName || '对方',
-                        text: reply,
-                        timestamp: new Date(),
-                        status: 'received',
-                        type: 'normal'
-                    });
-            
-                    playSound('message');
-            
-                    window.simulateReply = originalSimulateReply;
-                    return;
-                }
-            
-                // =========================
-                // ✅ 正常随机选择
-                // =========================
-                const templates = [
+            ];
+            const templates = [
                     `我选 ${answer}`,
                     `${answer} 吧`,
                     `我觉得 ${answer} 比较好`,
@@ -1269,24 +1238,14 @@ function handleDecisionSystem() {
                     `答案是：${answer}`,
                     `${answer}`,
                     `嗯…选 ${answer}`
-                ];
-            
-                const reply =
-                    templates[Math.floor(Math.random() * templates.length)];
-            
-                addMessage({
-                    id: Date.now(),
-                    sender: settings.partnerName || '对方',
-                    text: reply,
-                    timestamp: new Date(),
-                    status: 'received',
-                    type: 'normal'
-                });
-            
-                playSound('message');
-            
-                window.simulateReply = originalSimulateReply;
-            };
+            ];
+
+            if (Math.random() < 0.3){
+                        window.pendingDecisionReply = refuseReplies[Math.floor(Math.random() * refuseReplies.length)];
+            } else{
+                        window.pendingDecisionReply = templates[Math.floor(Math.random() * templates.length)];
+
+            }
 
     showNotification('已发送抉择问题', 'info', 1200);
 }
