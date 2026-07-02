@@ -990,6 +990,10 @@ function initDecisionModule() {
     const sendResultBtn = document.getElementById('send-wheel-result');
 
     if (openCoinBtn && !openCoinBtn.dataset.initialized) {
+            openCoinBtn.addEventListener('click', () => {
+            hideModal(document.getElementById('decision-menu-modal'));
+            handleCoinToss();
+        });
         openCoinBtn.dataset.initialized = 'true';
     }
 
@@ -1172,6 +1176,54 @@ function doPick() {
     
     flash();
 }
+
+function handleCoinToss() {
+    const overlay = DOMElements.coinTossOverlay;
+    if (!overlay) return;
+    overlay.classList.remove('finished');
+    overlay.classList.add('visible');
+    const resultText = DOMElements.coinResultText;
+    if (resultText) resultText.textContent = '';
+    const sendBtn = DOMElements.sendCoinResult;
+    if (sendBtn) sendBtn.style.display = 'none';
+    const retryBtn = document.getElementById('retry-coin-toss');
+    if (retryBtn) retryBtn.style.display = 'none';
+    if (DOMElements.animatedCoin) DOMElements.animatedCoin.style.transform = '';
+    startCoinFlipAnimation();
+}
+window.handleCoinToss = handleCoinToss;
+
+function startCoinFlipAnimation() {
+    const coin = DOMElements.animatedCoin;
+    const resultText = DOMElements.coinResultText;
+    const overlay = DOMElements.coinTossOverlay;
+    if (!coin || !overlay) return;
+
+    overlay.classList.remove('finished');
+    if (resultText) resultText.textContent = '';
+    const sendBtn = DOMElements.sendCoinResult;
+    if (sendBtn) sendBtn.style.display = 'none';
+    const retryBtn = document.getElementById('retry-coin-toss');
+    if (retryBtn) retryBtn.style.display = 'none';
+
+    const isHeads = Math.random() < 0.5;
+    const result = isHeads ? '正面 ☀️' : '反面 🌙';
+    lastCoinResult = result;
+
+    coin.classList.remove('flipping-heads', 'flipping-tails', 'coin-show-front', 'coin-show-back');
+    void coin.offsetWidth;
+    coin.classList.add(isHeads ? 'flipping-heads' : 'flipping-tails');
+    setTimeout(() => {
+        coin.classList.remove('flipping-heads', 'flipping-tails');
+        coin.style.transform = isHeads ? 'rotateY(0deg)' : 'rotateY(180deg)';
+        if (resultText) resultText.textContent = result;
+        overlay.classList.add('finished');
+        if (sendBtn) sendBtn.style.display = '';
+        if (retryBtn) retryBtn.style.display = '';
+        if (typeof playSound === 'function') playSound('favorite');
+    }, 3050);
+}
+window.startCoinFlipAnimation = startCoinFlipAnimation;
 
 // ===============================
 // 🧠 Decision System（替换 Coin Toss）
