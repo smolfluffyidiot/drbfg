@@ -1302,11 +1302,6 @@ function handleDecisionSystem() {
     showNotification('已发送抉择问题', 'info', 1200);
 }
 
-// ===============================
-// 🎯 替换 coin entry
-// ===============================
-window.handleCoinToss = handleDecisionSystem;
-
 document.getElementById('add-decision-option-btn')
 .addEventListener('click', () => {
 
