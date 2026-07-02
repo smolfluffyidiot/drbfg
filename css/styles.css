@@ -5341,9 +5341,8 @@
             }
 
             #decision-question{
-                        padding:12px 16px;
+                        padding:8px 16px;
                         box-sizing:border-box;
-                        height:38px;
             }
             
             /* Each option */
@@ -5441,6 +5440,7 @@
                 justify-content:flex-end;
                 gap:10px;
                 margin-top:4px;
+                margin-bottom:2px;
             }
 
         #anniversary-modal .modal-content {
