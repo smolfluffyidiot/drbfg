@@ -124,110 +124,106 @@
 // 🎲 Decision Panel Toggle
 // =========================
 
-const decisionBtn = document.getElementById('decision-btn');
-const decisionPanel = document.getElementById('decision-panel');
-
-if (decisionBtn && decisionPanel) {
-
-    decisionBtn.addEventListener('click', () => {
-        decisionPanel.classList.toggle('show');
-        decisionBtn.classList.toggle('active');
-    });
-}
-
-
-// =========================
-// 🚪 Close Panel Helper
-// =========================
-
 function closeDecisionPanel() {
+    const decisionPanel = document.getElementById('decision-panel');
+    const decisionBtn = document.getElementById('decision-btn');
     if (!decisionPanel || !decisionBtn) return;
 
-    decisionPanel.classList.remove('show');
+    decisionPanel.style.display = 'none';
     decisionBtn.classList.remove('active');
 }
 
+function initDecisionToggle() {
+    const decisionBtn = document.getElementById('decision-btn');
+    const decisionPanel = document.getElementById('decision-panel');
 
-// =========================
-// 🎯 Decision SEND BUTTON (NEW LOGIC)
-// =========================
+    if (!decisionBtn || !decisionPanel) return false;
 
-const decisionSendBtn = document.getElementById('decision-send-btn');
+    // Ensure panel starts hidden if inline style wasn't present
+    if (!decisionPanel.style.display) {
+        decisionPanel.style.display = 'none';
+    }
 
-if (decisionSendBtn) {
-
-    decisionSendBtn.addEventListener('click', () => {
-
-        const questionInput = document.getElementById('decision-question');
-        const optionInputs = document.querySelectorAll('#decision-options-container .decision-option-input');
-
-        if (!questionInput) return;
-
-        const question = questionInput.value.trim();
-
-        const options = Array.from(optionInputs)
-            .map(i => i.value.trim())
-            .filter(Boolean);
-
-        if (!question || options.length < 2) {
-            showNotification('请至少输入问题 + 2 个选项', 'warning');
-            return;
-        }
-
-        // Clear inputs
-        questionInput.value = '';
-        optionInputs.forEach(i => i.value = '');
-
-        // =========================
-        // 🎲 Pick random answer
-        // =========================
-
-        const answer = options[Math.floor(Math.random() * options.length)];
-
-        const refuseReplies = [
-            "这个我有点选不出来…",
-            "让我想想",
-            "都差不多欸，有点纠结",
-            "你帮我选吧",
-            "这个问题有点难选",
-            "我暂时选不出来"
-        ];
-
-        const templates = [
-            `我选 ${answer}`,
-            `${answer} 吧`,
-            `我觉得 ${answer} 比较好`,
-            `那就 ${answer}！`,
-            `答案是：${answer}`,
-            `${answer}`,
-            `嗯…选 ${answer}`
-        ];
-
-        // Random response style
-        const finalReply =
-            Math.random() < 0.3
-                ? refuseReplies[Math.floor(Math.random() * refuseReplies.length)]
-                : templates[Math.floor(Math.random() * templates.length)];
-
-        // Save to global chat system
-        window.pendingDecisionReply = finalReply;
-
-        showNotification('已生成抉择结果', 'info', 1200);
-
-        // 🚪 CLOSE PANEL AFTER CLICKING 发送
-        closeDecisionPanel();
+    decisionBtn.addEventListener('click', () => {
+        const isHidden = getComputedStyle(decisionPanel).display === 'none';
+        decisionPanel.style.display = isHidden ? 'block' : 'none';
+        decisionBtn.classList.toggle('active', isHidden);
     });
+
+    const decisionSendBtn = document.getElementById('decision-send-btn');
+    if (decisionSendBtn) {
+        decisionSendBtn.addEventListener('click', () => {
+            const questionInput = document.getElementById('decision-question');
+            const optionInputs = document.querySelectorAll('#decision-options-container .decision-option-input');
+
+            if (!questionInput) return;
+
+            const question = questionInput.value.trim();
+
+            const options = Array.from(optionInputs)
+                .map(i => i.value.trim())
+                .filter(Boolean);
+
+            if (!question || options.length < 2) {
+                showNotification('请至少输入问题 + 2 个选项', 'warning');
+                return;
+            }
+
+            // Clear inputs
+            questionInput.value = '';
+            optionInputs.forEach(i => i.value = '');
+
+            // =========================
+            // 🎲 Pick random answer
+            // =========================
+
+            const answer = options[Math.floor(Math.random() * options.length)];
+
+            const refuseReplies = [
+                "这个我有点选不出来…",
+                "让我想想",
+                "都差不多欸，有点纠结",
+                "你帮我选吧",
+                "这个问题有点难选",
+                "我暂时选不出来"
+            ];
+
+            const templates = [
+                `我选 ${answer}`,
+                `${answer} 吧`,
+                `我觉得 ${answer} 比较好`,
+                `那就 ${answer}！`,
+                `答案是：${answer}`,
+                `${answer}`,
+                `嗯…选 ${answer}`
+            ];
+
+            // Random response style
+            const finalReply =
+                Math.random() < 0.3
+                    ? refuseReplies[Math.floor(Math.random() * refuseReplies.length)]
+                    : templates[Math.floor(Math.random() * templates.length)];
+
+            // Save to global chat system
+            window.pendingDecisionReply = finalReply;
+
+            showNotification('已生成抉择结果', 'info', 1200);
+
+            // 🚪 CLOSE PANEL AFTER CLICKING 发送
+            closeDecisionPanel();
+        });
+    }
+
+    const sendBtn = document.getElementById('send-btn');
+    if (sendBtn) {
+        sendBtn.addEventListener('click', () => {
+            closeDecisionPanel();
+        });
+    }
+
+    return true;
 }
 
-
-// =========================
-// 📤 CLOSE PANEL WHEN SENDING NORMAL MESSAGE
-// =========================
-
-const sendBtn = document.getElementById('send-btn');
-
-if (sendBtn) {
-    sendBtn.addEventListener('click', () => {
-        closeDecisionPanel();
-    });
+if (!initDecisionToggle()) {
+    document.addEventListener('DOMContentLoaded', () => initDecisionToggle());
 }
