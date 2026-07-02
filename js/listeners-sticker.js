@@ -124,7 +124,7 @@
 // 🎲 Decision Panel Toggle
 // =========================
 
-const decisionBtn = document.getElementById('decision-toggle-btn');
+const decisionBtn = document.getElementById('decision-btn');
 const decisionPanel = document.getElementById('decision-panel');
 
 if (decisionBtn && decisionPanel) {
